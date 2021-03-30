@@ -57,44 +57,50 @@ public class AttachmentService {
         return attachment;
     }
 
-    public Result update(Integer id, MultipartHttpServletRequest request) throws IOException {
-
-        Iterator<String> fileNames = request.getFileNames();
-        MultipartFile file = request.getFile(fileNames.next());
-
-        Optional<Attachment> optionalAttachment = attachmentRepository.findById(id);
-        if (!optionalAttachment.isPresent()){
-            return new Result("Attachment id not found", false);
-        }
-        Attachment attachmentDb = optionalAttachment.get();
-
-        if (file==null){
-            return new Result("Yangilanadigan file yuklanmagan!", false);
-        }
-        attachmentDb.setName(file.getOriginalFilename());
-        attachmentDb.setSize(file.getSize());
-        attachmentDb.setContentType(file.getContentType());
-
-        Attachment savedAttachment = attachmentRepository.save(attachmentDb);
-
-        Optional<AttachmentContent> optionalAttachmentContent = attachmnetContentRepository.findByAttachmentId(savedAttachment.getId());
-        if (!optionalAttachmentContent.isPresent()){
-            return new Result("Attachment id not found", false);
-        }
-        AttachmentContent attachmentContent = optionalAttachmentContent.get();
-        attachmentContent.setAttachment(savedAttachment);
-        attachmentContent.setBytes(file.getBytes());
-
-        attachmnetContentRepository.save(attachmentContent);
-
-        return new Result("File updated", true);
-    }
+//    public Result update(Integer id, MultipartHttpServletRequest request) throws IOException {
+//
+//        Iterator<String> fileNames = request.getFileNames();
+//        MultipartFile file = request.getFile(fileNames.next());
+//
+//        Optional<Attachment> optionalAttachment = attachmentRepository.findById(id);
+//        if (!optionalAttachment.isPresent()){
+//            return new Result("Attachment id not found", false);
+//        }
+//        Attachment attachmentDb = optionalAttachment.get();
+//
+//        if (file==null){
+//            return new Result("Yangilanadigan file yuklanmagan!", false);
+//        }
+//        attachmentDb.setName(file.getOriginalFilename());
+//        attachmentDb.setSize(file.getSize());
+//        attachmentDb.setContentType(file.getContentType());
+//
+//        Attachment savedAttachment = attachmentRepository.save(attachmentDb);
+//
+//        Optional<AttachmentContent> optionalAttachmentContent = attachmnetContentRepository.findByAttachmentId(savedAttachment.getId());
+//        if (!optionalAttachmentContent.isPresent()){
+//            return new Result("Attachment id not found", false);
+//        }
+//        AttachmentContent attachmentContent = optionalAttachmentContent.get();
+//        attachmentContent.setAttachment(savedAttachment);
+//        attachmentContent.setBytes(file.getBytes());
+//
+//        attachmnetContentRepository.save(attachmentContent);
+//
+//        return new Result("File updated", true);
+//    }
 
     public Result delete(Integer id) {
         Optional<Attachment> optionalAttachment = attachmentRepository.findById(id);
         if (!optionalAttachment.isPresent()){
             return new Result("Attachment id not found", false);
         }
+        Optional<AttachmentContent> optionalAttachmentContent = attachmnetContentRepository.findByAttachmentId(id);
+        if (!optionalAttachmentContent.isPresent()){
+            return new Result("AttachmentContent id not found", false);
+        }
+        AttachmentContent attachmentContent = optionalAttachmentContent.get();
+        attachmnetContentRepository.delete(attachmentContent);
         attachmentRepository.deleteById(id);
         return new Result("Attachment deleted", true);
     }

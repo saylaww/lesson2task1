@@ -9,4 +9,5 @@ public interface AttachmentContentRepository extends JpaRepository<AttachmentCon
 
     Optional<AttachmentContent> findByAttachmentId(Integer attachment_id);
 
+
 }
